@@ -76,7 +76,7 @@ def findWiiM(locations = [], name: string = None):
 
     :return URL of the device we are looking for or None if not found
     """
-    frinedlyNameSTR = "./{urn:schemas-upnp-org:device-1-0}device/{urn:schemas-upnp-org:device-1-0}friendlyName"
+    frinedlyNameSTR = "./{urn:schemas-upnp-org:device-1-0}device/{urn:schemas-upnp-org:device-1-0}modelName"
     device = []
     if name:
         if len(locations) > 0:
