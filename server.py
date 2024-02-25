@@ -165,9 +165,6 @@ def main():
     for w in wiim:
         devs.append(upnpclient.Device(w))
 
-    # Create an object of the above class
-    # handler_object = MyHttpRequestHandler
-
     print('Starting servers...')
 
     my_servers = []
