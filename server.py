@@ -102,6 +102,8 @@ def findWiiM(locations = [], name: string = None):
     return device
 
 class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
+    def __init__(self, d):
+        self.dev = d
 
     def do_GET(self):
         # Extract query param
@@ -116,7 +118,7 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
 
             if action == "getdata":
-                obj = dev.AVTransport.GetMediaInfo(InstanceID='0')
+                obj = self.dev.AVTransport.GetMediaInfo(InstanceID='0')
                 meta = obj['CurrentURIMetaData']
                 items = xmltodict.parse(meta)["DIDL-Lite"]["item"]
                 try:
@@ -129,20 +131,20 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
                 return
 
             elif action == "status":
-                obj = dev.AVTransport.GetTransportInfo(InstanceID='0')
+                obj = self.dev.AVTransport.GetTransportInfo(InstanceID='0')
                 self.wfile.write(str.encode(json.dumps(obj)))
                 return  
             elif action == "play":
-                dev.AVTransport.Play(InstanceID='0',Speed='1')
+                self.dev.AVTransport.Play(InstanceID='0',Speed='1')
                 return
             elif action == "pause":
-                dev.AVTransport.Pause(InstanceID='0')
+                self.dev.AVTransport.Pause(InstanceID='0')
                 return
             elif action == "next":
-                dev.AVTransport.Next(InstanceID='0')
+                self.dev.AVTransport.Next(InstanceID='0')
                 return
             elif action == "prev":
-                dev.AVTransport.Previous(InstanceID='0')
+                self.dev.AVTransport.Previous(InstanceID='0')
                 return
         else:
             if self.path == "" or self.path == "/":
@@ -164,12 +166,13 @@ def main():
         devs.append(upnpclient.Device(w))
 
     # Create an object of the above class
-    handler_object = MyHttpRequestHandler
+    # handler_object = MyHttpRequestHandler
 
     print('Starting servers...')
 
     my_servers = []
     for dev in devs:
+        handler_object = MyHttpRequestHandler(dev)
         my_servers.append(socketserver.TCPServer(("", PORT), handler_object))
         print(f'     http://localhost:{PORT}/   ==> {dev.friendly_name}')
         PORT += 1
